@@ -64,6 +64,14 @@ for TARGET in "${(k)SYMLINKS[@]}"; do
   fi
 done
 
+################# INSTALL APT PACKAGES ################# 
+
+for APT_PACKAGE in "${APT_PACKAGES[@]}"; do
+  if ! command -v ${APT_PACKAGE} &>/dev/null ; then
+    sudo apt install ${APT_PACKAGE} -y -qq # Install apt packages
+  fi
+done
+
 ################# LIST CUSTOM PACKAGES ################# 
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -203,14 +211,6 @@ unset __conda_setup
 
 ################ INSTALLING APT PACKAGES ################
 
-if [[ -e ~/miniforge3/bin ]]; then
-  conda activate # Installing in mamba base env
-  for APT_PACKAGE in "${APT_PACKAGES[@]}"; do
-    if ! command -v ${APT_PACKAGE} &>/dev/null ; then
-      sudo apt install ${APT_PACKAGE} -y -qq # Install apt packages
-    fi
-  done
-fi
 
 ################ INSTALLING APT PACKAGES ################
 
