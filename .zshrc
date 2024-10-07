@@ -74,6 +74,20 @@ done
 
 ################# LIST CUSTOM PACKAGES ################# 
 
+####################### CONFIGS ######################## 
+# To use batpipe, eval the output of this command in your shell init script.
+LESSOPEN="|/usr/local/bin/batpipe %s";
+export LESSOPEN;
+unset LESSCLOSE;
+
+# The following will enable colors when using batpipe with less:
+LESS="$LESS -R";
+BATPIPE="color";
+export LESS;
+export BATPIPE;
+####################### CONFIGS ######################## 
+
+LESSOPEN="|/usr/local/bin/batpipe %s";
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -82,10 +96,13 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$HOME/.local/share:/usr/local/bin:$PATH
 
 # Add mamba/etc to PATH
 export PATH=${PATH}:/home/madhur/miniforge3/bin
+
+# Modify MANPATH
+export MANPATH=${HOME}/.local/share/man
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -189,7 +206,23 @@ pactl set-sink-volume @DEFAULT_SINK@ 200%
 ################ ALIASES ################
 
 # Make alias for nvim
-alias nvim="flatpak run --env=FLATPAK_ENABLE_SDK_EXT=node20 --env=PATH=/app/bin:/usr/bin/:${HOME}/miniforge3/envs/r_env_flatpak_nvim/bin/:${HOME}/.local/bin io.neovim.nvim"
+if command -v flatpak &>/dev/null && flatpak info io.neovim.nvim &>/dev/null; then
+
+  if [[ ! -d ~/.local/share/man ]]; then
+    mkdir ~/.local/share/man
+    rsync -a /usr/share/man ~/.local/share/man
+  fi
+
+  flatpak override --user \
+    --env=MANPATH=${MANPATH} \
+    --env=FLATPAK_ENABLE_SDK_EXT=node20 \
+    --env=PATH=${HOME}/.local/share:/app/bin:/usr/bin/:${HOME}/miniforge3/envs/r_env_flatpak_nvim/bin/:${HOME}/.local/bin \
+    io.neovim.nvim
+fi
+
+nvim() {
+  flatpak run io.neovim.nvim "$@"
+}
 
 ################ ALIASES ################
 
@@ -225,11 +258,15 @@ unset __conda_setup
 ZVM_VI_INSERT_ESCAPE_BINDKEY=jj
 
 # Give flatpak the read-only permissions to the manpages
-# flatpak override \
-#   --filesystem=/usr/share/man:ro
+# flatpak override --user --filesystem=host io.neovim.nvim
 
 # Make "nvim" the default display manager for the output of "man ..." commands
-# export MANPAGER='flatpak run --env=FLATPAK_ENABLE_SDK_EXT=node20 --env=PATH=/app/bin:/usr/bin/:${HOME}/miniforge3/envs/r_env_flatpak_nvim/bin/:${HOME}/.local/bin --filesystem=/usr/share/man:ro io.neovim.nvim +Man!'
+# export MANPAGER='flatpak run io.neovim.nvim "$@"'
+# export MANPAGER='flatpak run io.neovim.nvim +Man!'
 # export MANWIDTH=999
+
+manv() {
+  MANPAGER=cat man "$@" | nvim --clean -
+}
 
 ################# CODE EXECUTION STARTS ################# 
