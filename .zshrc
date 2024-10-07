@@ -21,6 +21,12 @@ APT_PACKAGES=(
   curl
 )
 
+# GITHUB (BINARY INSTALLS)
+typeset -A BINARY_PACKAGES
+BINARY_PACKAGES=(
+  # 'kitty' 'https://sw.kovidgoyal.net/kitty/installer.sh' 
+)
+
 # FLATPAK
 
 # CONDA/MAMBA
@@ -37,6 +43,7 @@ typeset -A SYMLINKS
 SYMLINKS=(
   "fdfind" "~/.local/bin/fd"
 )
+
 
 ############### INSTALLATION FLAGS ################# 
 
@@ -66,6 +73,8 @@ for TARGET in "${(k)SYMLINKS[@]}"; do
   fi
 done
 
+################# PACKAGE INSTALLATION ################# 
+
 ################# INSTALL APT PACKAGES ################# 
 
 for APT_PACKAGE in "${APT_PACKAGES[@]}"; do
@@ -74,7 +83,15 @@ for APT_PACKAGE in "${APT_PACKAGES[@]}"; do
   fi
 done
 
-################# LIST CUSTOM PACKAGES ################# 
+################# INSTALL APT PACKAGES ################# 
+
+for BINARY_TOOL_NAME in "${!BINARY_PACKAGES[@]}"; do
+  if ! command -v "${BINARY_TOOL_NAME}" &>/dev/null; then
+    BINARY_PACKAGE_URL="${BINARY_PACKAGES[${BINARY_TOOL_NAME}]}"
+    curl -fsSL -O ${BINARY_PACKAGE_URL}
+    chmod +x ${BINARY_PACKAGE_URL}
+  fi
+done
 
 ####################### CONFIGS ######################## 
 # To use batpipe, eval the output of this command in your shell init script.
