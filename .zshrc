@@ -23,9 +23,6 @@ APT_PACKAGES=(
 
 # FLATPAK
 
-# INSTALL CONDA FLAG
-INSTALL_MAMBA="y"
-
 # CONDA/MAMBA
 MAMBA_PACKAGES=(
 )
@@ -40,6 +37,11 @@ typeset -A SYMLINKS
 SYMLINKS=(
   "fdfind" "~/.local/bin/fd"
 )
+
+############### INSTALLATION FLAGS ################# 
+
+# INSTALL CONDA FLAG
+INSTALL_MAMBA="y"
 
 ############# CODE EXECUTION STARTS ############### 
 
